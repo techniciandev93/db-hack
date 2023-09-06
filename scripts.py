@@ -1,9 +1,8 @@
 import os
 import django
 import random
-from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import MultipleObjectsReturned
+
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 django.setup()
@@ -20,28 +19,20 @@ WISHES = ['Молодец!', 'Отлично!', 'Хорошо!', 'Гораздо
           'Ты многое сделал, я это вижу!', 'Теперь у тебя точно все получится!']
 
 
-def get_child(fio):
-    try:
-        child = get_object_or_404(Schoolkid, full_name__contains=fio)
-    except MultipleObjectsReturned:
-        raise Http404()
-    return child
-
-
 def fix_marks(fio):
-    child = get_child(fio)
+    child = get_object_or_404(Schoolkid, full_name__contains=fio)
     schoolkid_marks = Mark.objects.filter(schoolkid=child, points__in=[2, 3])
     schoolkid_marks.update(points=5)
 
 
 def remove_chastisements(fio):
-    child = get_child(fio)
+    child = get_object_or_404(Schoolkid, full_name__contains=fio)
     schoolkid_chastisements = Chastisement.objects.filter(schoolkid=child)
     schoolkid_chastisements.delete()
 
 
 def create_commendation(fio, subject):
-    child = get_child(fio)
+    child = get_object_or_404(Schoolkid, full_name__contains=fio)
     child_random_lesson = Lesson.objects.filter(year_of_study=child.year_of_study,
                                                 group_letter=child.group_letter,
                                                 subject__title=subject).order_by('?').first()
